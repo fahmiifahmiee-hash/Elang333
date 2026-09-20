@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elang333</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Arial,sans-serif;background:#111;color:#fff;display:flex;justify-content:center;min-height:100vh;padding:24px}
+  .game{width:min(420px,100%);background:#202020;border-radius:20px;padding:22px;text-align:center;box-shadow:0 10px 30px #0008}
+  h1{margin:0 0 10px}
+  .coins{font-size:20px;margin-bottom:16px}
+  .reels{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;background:#333;padding:10px;border-radius:14px}
+  .reel{background:#fff;color:#111;border-radius:10px;font-size:48px;padding:12px 4px;min-height:82px;display:flex;align-items:center;justify-content:center}
+  .row{display:flex;align-items:center;justify-content:center;gap:10px;margin:16px 0}
+  button{border:0;border-radius:10px;padding:12px 18px;font-size:18px;font-weight:bold;cursor:pointer}
+  .small{padding:8px 14px}
+  .spin{width:100%;font-size:22px;margin-top:4px}
+  .result{min-height:28px;margin:14px 0;font-weight:bold}
+  .note{font-size:12px;color:#bbb;margin-top:16px}
+</style>
+</head>
+<body>
+<div class="game">
+  <h1>🎰 ELANG333 🎰</h1>
+  <div class="coins">🪙 Koin virtual: <span id="coins">1000</span></div>
+
+  <div class="reels">
+    <div class="reel" id="r1">🍒</div>
+    <div class="reel" id="r2">7️⃣</div>
+    <div class="reel" id="r3">🍋</div>
+  </div>
+
+  <div class="row">
+    <button class="small" onclick="changeBet(-10)">−</button>
+    <div>Taruhan: <b><span id="bet">10</span></b> 🪙</div>
+    <button class="small" onclick="changeBet(10)">+</button>
+  </div>
+
+  <button class="spin" onclick="spin()">🎰 PUTAR</button>
+  <div class="result" id="result">Siap bermain!</div>
+  <div class="note">Koin virtual tidak memiliki nilai uang dan tidak dapat dicairkan.</div>
+</div>
+
+<script>
+const symbols = ["🍒","🍋","🍉","⭐","🔔","7️⃣"];
+let coins = 1000;
+let bet = 10;
+let spinning = false;
+
+function render(){
+  document.getElementById("coins").textContent = coins;
+  document.getElementById("bet").textContent = bet;
+}
+function changeBet(amount){
+  if(spinning) return;
+  bet = Math.max(10, Math.min(100, bet + amount));
+  if(bet > coins) bet = Math.max(10, Math.floor(coins/10)*10);
+  render();
+}
+function spin(){
+  if(spinning) return;
+  if(coins < bet){
+    document.getElementById("result").textContent = "Koin tidak cukup.";
+    return;
+  }
+  spinning = true;
+  coins -= bet;
+  render();
+  document.getElementById("result").textContent = "Berputar...";
+
+  let ticks = 0;
+  const timer = setInterval(()=>{
+    document.getElementById("r1").textContent = symbols[Math.floor(Math.random()*symbols.length)];
+    document.getElementById("r2").textContent = symbols[Math.floor(Math.random()*symbols.length)];
+    document.getElementById("r3").textContent = symbols[Math.floor(Math.random()*symbols.length)];
+    ticks++;
+    if(ticks >= 12){
+      clearInterval(timer);
+      finish();
+    }
+  },80);
+}
+function finish(){
+  const a = document.getElementById("r1").textContent;
+  const b = document.getElementById("r2").textContent;
+  const c = document.getElementById("r3").textContent;
+  let win = 0;
+  if(a===b && b===c) win = bet * 10;
+  else if(a===b || a===c || b===c) win = bet * 2;
+
+  coins += win;
+  if(win > 0) document.getElementById("result").textContent = "🎉 Menang +" + win + " koin virtual!";
+  else document.getElementById("result").textContent = "Belum cocok. Coba lagi!";
+  render();
+  spinning = false;
+}
+render();
+</script>
+</body>
+</html>
